@@ -1,0 +1,88 @@
+This is the code base for the "Thesis - Emil Haldan - A_comparative_study_of_GNN_s_and_LSTM_s_for_Portfolio_Management.pdf". 
+A data science thesis on the comparison of Graph Neural Networks and Long Short Term Memory networks for stock price prediction and portfolio management.
+
+
+The file structure is as follows:
+- create_X.py are scripts that create the supporting data for the model
+- explore_X.ipynb are scripts that run the models, explore the data, and visualize the results
+- monthly_backtester.py is a script that backtests the models on the results data 
+
+Viewing the Database file:
+- To view the database file use https://sqlitebrowser.org/
+- This can also be done in python using the sqlite3 library
+- The database does not contain all data used in the project, as the original database was 14GB, and the data was too large to upload to GitHub.
+- Instead, a sample of the data is provided in the data folder, which is purely for demonstration purposes.
+
+
+
+HOW TO USE THE CODE:
+
+To gather the data, run ETL_DB_from_scratch.bat 
+This will only work if you have an API key for EODHD, and adjust it so that it is read in get_credentials() found in create_financial_database.py
+
+If you are a MAC or LINUX user, just look in the script and run the commands in the command line in the same order as provided.
+
+ORDER: 
+
+Step 1: 
+Ensure that "S&P500_historical_composition.csv" is in the data folder
+
+Step 2: 
+Run create_financial_data.py to create the financial data. This will create a SQLite database in the data folder.
+Ensure that in the main populate_database function, the correct start and end dates are set, AND
+spy_df, stock_tickers comes from load_SPY_components().
+
+Step 3: 
+Run create_financial_features.py to create the feature data. This will add tables to the SQLite database in the data folder.
+This craetes all features derived from the price data and fundamental data, such as technical indicators, and valuation ratios.
+
+Step 4:
+Run create_edge_list.py
+This creates 2 pickle files which stores dictionaries with all the edges in the network for each week (last day of the week).
+The structure of the pickle file is as follows:
+{
+    '2020-01-03':
+    {
+        (stock1, stock2): weight,
+        (stock1, stock3): weight,
+        ...
+        (stock_n-1, stock_n): weight
+    },
+}
+
+Step 5: 
+Run create_feature_data.py
+This transforms the data into the desired formats, calculates the normalization parameters (mean, std), and saves the data in the database.
+Following this, the scrit uses these values to normalize the data and save it in the database.
+Running this while the data is present in the database will NOT the data.
+
+Step 6:
+Run create_ML_feature_dataset.py
+This creates a complete table of all the features for each stock for each day, with fill forwarded data, missing values handled, and pseudo deactivation of stock features for stocks not present in the S&P500 at that time.
+
+Step 7:
+Run create_target_data.py
+This creates the target data for the model, which are levels of interest for the stock price, based on the weekly returns.
+The target has been creating in this way to simplify the problem, as predicting the exact price has been proven to be a challenging task in multiple studies.
+
+Step 8:
+Run create_graph_data.py
+This creates network data for each data, and also creates chunks of data for the timeseries graph neural network.
+
+Step 9:
+Run create_LSTM_data.py
+This creates the data for the LSTM model, which is a timeseries model, and requires a different data format than the GNN model.
+
+Step 10: 
+Enter explore_GNN.ipynb  to explore the data, and run the GNN models. 
+Enter explore_LSTM.ipynb to explore the data, and run the LSTM models. 
+
+Step 11:
+Open and modify monthly_backtester.py to backtest the models on the data.
+
+Step 12:
+Enter explore_results.ipynb to explore the results of the backtesting and model performance.
+
+
+
+
